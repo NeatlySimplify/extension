@@ -4,14 +4,9 @@
   "version": "1.0",
   "description": "A Chrome extension using voice synthesis and recording to assist blind or mute users with AI-powered interaction.",
   "action": {
-    "default_popup": "popup.html",
-    "default_icon": {
-      "16": "icons/icon16.png",
-      "48": "icons/icon48.png",
-      "128": "icons/icon128.png"
-    }
+    "default_popup": "Open Chat"
   },
-  "permissions": ["storage", "cookies", "scripting", "activeTab"],
+  "permissions": ["storage", "scripting", "tabs"],
   "host_permissions": [
     "<all_urls>" // or restrict to your server domain
   ],
@@ -21,12 +16,13 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content.js"]
+      "js": ["content.js"],
+      "run_at": ["document_idle"]
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": ["icons/*", "content/*.css"],
+      "resources": ["icons/*", "content/*.css", "dist/FormSetup.html", "dist/ChatWindow.html"],
       "matches": ["<all_urls>"]
     }
   ]

@@ -1,3 +1,5 @@
+
+
 const messageHandlers = {
   'SEND_TO_AI': async (message, sender, sendResponse) => {
     // Handle sending message to AI backend
@@ -7,24 +9,35 @@ const messageHandlers = {
 
   'GET_USER_SETTINGS': (message, sender, sendResponse) => {
     // Retrieve settings from storage
-    chrome.storage.local.get(['settings'], (result) => {
-      sendResponse({ settings: result.settings || {} });
+    chrome.storage.local.get(['GuIA'], (result) => {
+      sendResponse({ GuIA: result || {} });
     });
   },
 
-  'SAVE_COOKIE': (message, sender, sendResponse) => {
-    chrome.cookies.set({
-      url: sender.url || 'http://localhost', // Adjust depending on context
-      name: 'my_extension_cookie',
-      value: msg.value,
-      expirationDate: Date.now() / 1000 + 60 * 60 * 24 * 365 // 1 year
-    }, (cookie) => {
-      console.log('Cookie saved:', cookie);
+  'SAVE_USER_SETTINGS': (message, sender, sendResponse) => {
+    chrome.storage.local.set({ 'GuIA': message.data }, () => {
+      console.log('Object saved to chrome.storage.local:', message.data);
       sendResponse({ status: 'saved' });
     });
     return true; // Keep message channel open for async response
   },
-}
+
+  'SEND_TO_GEMINI': async (message, sender, sendResponse) => {
+    const model = message.model;
+    const text = message.text;
+    let response;
+
+    if (model === 'gemini-pro') {
+      response = await sendToGeminiPro(text);
+    } else if (model === 'gemini-flash') {
+      response = await sendToGeminiFlash(text);
+    } else {
+      response = { error: 'Invalid or missing Gemini model specified.' };
+    }
+    sendResponse(response);
+  },
+};
+
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   const handler = messageHandlers[message.type];
@@ -42,16 +55,3 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   return false; // No async response expected
 });
 
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (changeInfo.status === 'complete' && tab.url.startsWith('http')) {
-    chrome.cookies.get({ url: tab.url, name: 'my_extension_cookie' }, (cookie) => {
-      if (!cookie) {
-        // Tell content.js to show the Vue form
-        chrome.tabs.sendMessage(tabId, { type: 'SHOW_VUE_FORM' });
-      } else {
-        // Proceed normally
-        console.log('Cookie found:', cookie.value);
-      }
-    });
-  }
-});

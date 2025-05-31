@@ -1,17 +1,4 @@
-.focus-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100vh;
-  width: 100vw;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 20;
-  pointer-events: none;
-}
-
 .focus-ring {
-  outline: 4px solid #3b82f6; /* Tailwind blue-500 */
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  z-index: 10000;
+  outline: 2px solid red;
+  /* Add any other desired styles for the focus ring */
 }
